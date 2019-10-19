@@ -137,7 +137,7 @@ class Status:
 
     def find_nearest_enemy(self) -> Enemy:
         """ Find the nearest enemy tank """
-        recently_seen = self.recently_seen_tanks(1)
+        recently_seen = self.recently_seen_enemies(1)
         if len(recently_seen) == 0:
             return None
         positions = list(map(lambda t: t.current_pos(), recently_seen))
@@ -146,7 +146,7 @@ class Status:
 
     def find_lowest_enemy(self) -> Enemy:
         """ Find the nearest enemy tank """
-        recently_seen = self.recently_seen_tanks(5)
+        recently_seen = self.recently_seen_enemies(5)
         if len(recently_seen) == 0:
             return None
         healths = list(map(lambda t: t.health, recently_seen))
@@ -162,13 +162,31 @@ class Status:
             return None
         return recently_seen[0]
 
-    def recently_seen_tanks(self, seconds) -> List[Enemy]:
+    def recently_seen_all(self, seconds) -> List[Enemy]:
+        current_time = time()
+        recently_seen = []
+        for tank in self.other_tanks.values():
+            if current_time - tank.last_seen < seconds:
+                recently_seen.append(tank)
+        return recently_seen
+
+    def recently_seen_enemies(self, seconds) -> List[Enemy]:
         current_time = time()
         recently_seen = []
         for tank in self.other_tanks.values():
             if current_time - tank.last_seen < seconds:
                 tank_team = tank.name.split(":")[0]
                 if tank_team != self.teamname:
+                    recently_seen.append(tank)
+        return recently_seen
+
+    def recently_seen_friendlies(self, seconds) -> List[Enemy]:
+        current_time = time()
+        recently_seen = []
+        for tank in self.other_tanks.values():
+            if current_time - tank.last_seen < seconds:
+                tank_team = tank.name.split(":")[0]
+                if tank_team == self.teamname:
                     recently_seen.append(tank)
         return recently_seen
 
