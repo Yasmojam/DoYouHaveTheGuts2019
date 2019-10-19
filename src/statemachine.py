@@ -81,7 +81,7 @@ class StateMachine:
         self.current_body_state = self.body_states[self.current_body_state_i]
         self.current_turret_state = self.turret_states[self.current_turret_state_i]
         ## Update current states in StopState
-        self.body_states[-1].updateStates(self.current_body_state, self.current_turret_state)
+        self.body_states[AVAILABLE_BODY_STATES.index(StopState)].updateStates(self.current_body_state, self.current_turret_state)
 
     def perform_current_state(self) -> None:
         logging.info(f"Performing states: {self.current_body_state} {self.current_turret_state}")
