@@ -7,7 +7,7 @@ from utils import closest_point, calculate_distance
 
 
 class Status:
-    def __init__(self, teamname: str name: str, role) -> None:
+    def __init__(self, teamname: str, name: str, role) -> None:
         self.teamname = teamname
         self.name = name
         self.id = None

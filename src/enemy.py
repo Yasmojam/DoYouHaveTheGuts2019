@@ -44,4 +44,6 @@ class Enemy:
         """
         Returns true if the given position is in the enemy tanks FOV
         """
-        pass
+        heading_to_player = heading_from_to(self.current_pos(), position)
+        distance_from_player = calculate_distance(self.current_pos(), position)
+        return within_degrees(90, self.turret_heading, heading_to_player) and (distance_from_player <= 100)
