@@ -132,7 +132,7 @@ class Status:
     def find_snitch_carrier(self) -> Enemy:
         if self.snitch_carrier_id is None:
             return None
-        recently_seen = self.recently_seen_enemies(2)
+        recently_seen = self.recently_seen_enemies(3)
         for tank in recently_seen:
             if tank.id == self.snitch_carrier_id:
                 return tank
@@ -140,7 +140,7 @@ class Status:
 
     def find_nearest_enemy(self) -> Enemy:
         """ Find the nearest enemy tank """
-        recently_seen = self.recently_seen_enemies(1)
+        recently_seen = self.recently_seen_enemies(3)
         if len(recently_seen) == 0:
             return None
         positions = list(map(lambda t: t.current_pos(), recently_seen))
@@ -153,6 +153,9 @@ class Status:
         if len(recently_seen) == 0:
             return None
         healths = list(map(lambda t: t.health, recently_seen))
+        healths = list(filter(lambda h: h != 0, healths))
+        if len(healths) == 0:
+            return None
         i = healths.index(min(healths))
         return recently_seen[i]
 

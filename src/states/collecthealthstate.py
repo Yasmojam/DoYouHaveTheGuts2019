@@ -19,6 +19,6 @@ class CollectHealthState(State):
         '''
         self.closest_health = self.status.find_nearest_health()
         if self.status.health == self.status.max_health or self.closest_health is None:
-            return 0.00
+            return 0.02 # can go to the possible checkpoints
         return 0.5 - ((self.status.health - 1)/((self.status.max_health-1)*2)) + self.base_priority 
         #hard coded priority + base priority
