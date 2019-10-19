@@ -16,16 +16,18 @@ class AttackState(State):
 
     def predict_enemy_position(self, enemy):
         player_position = np.array(list(self.status.position))
-        distance = np.sqrt( (player_position[0] - enemy.current_pos()[0])**2 + (player_position[1] - enemy.current_pos()[1])**2 )
+        # distance = np.sqrt( (player_position[0] - enemy.current_pos()[0])**2 + (player_position[1] - enemy.current_pos()[1])**2 )
+        distance = calculate_distance(player_position, enemy.current_pos())
 
-        time = np.divide(distance, BULLET_SPEED)
+        time = distance / BULLET_SPEED
         
-        delta_distance = np.array([10 * math.cos(90 * enemy.heading) * time, 10 * math.sin(90 * enemy.heading)])
+        delta_distance = np.array([10 * np.cos(enemy.heading) * time, -10 * np.sin(enemy.heading) * time])
 
-        return (player_position + delta_distance).tolist()
+        return (enemy.current_pos() + delta_distance).tolist()
 
 
     def perform(self):
+
         (enemy, next_heading) = self.getEnemyAndHeading()
         # self.turret_controls.aim_left()
         self.turret_controls.aim_at_heading(next_heading)
@@ -45,6 +47,8 @@ class AttackState(State):
         enemy = self.target if self.target else self.status.find_best_enemy_target()
         position = self.status.position
 
+        # predicted_enemy_position = self.predict_enemy_position(enemy)
+
         next_heading = heading_from_to(position, enemy.current_pos())
         return (enemy, next_heading)
 
@@ -55,7 +59,7 @@ class AttackState(State):
         predicted_enemy_position = self.predict_enemy_position(enemy)
 
         distance = calculate_distance(self.status.position, predicted_enemy_position)
-        angle_allowed = (105 - distance) / 10
+        angle_allowed = (105 - distance) / 5
 
         time_since_last = time() - self.lastFireTime
 
