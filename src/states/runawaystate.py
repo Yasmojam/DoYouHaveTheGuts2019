@@ -18,7 +18,7 @@ class RunAwayState(State):
 
     def calculate_priority(self, is_current_state: bool):
         baby_pos = self.status.position
-        seentanks = self.status.recently_seen_tanks(2)
+        seentanks = self.status.recently_seen_enemies(2)
         for tank in seentanks:
             in_danger = all(
                 (
