@@ -19,8 +19,12 @@ parser.add_argument('-H', '--hostname', default='127.0.0.1',
                     help='Hostname to connect to')
 parser.add_argument('-p', '--port', default=8052,
                     type=int, help='Port to connect to')
+<<<<<<< HEAD
+parser.add_argument('-n', '--name', default='PYJIN:TimScorer', help='Name of bot')
+=======
 
 parser.add_argument('-n', '--name', default='TeamScorer:TimScorer', help='Name of bot')
+>>>>>>> b84dca6ed54aef98ceab42bb4e9e2800cb863a3a
 args = parser.parse_args()
 
 # Set up console logging
