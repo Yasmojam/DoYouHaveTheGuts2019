@@ -15,5 +15,5 @@ class CollectAmmoState(State):
     def calculate_priority(self, is_current_state: bool) -> None:
         self.closest_ammo = self.status.find_nearest_ammo()
         if self.status.ammo == self.status.max_ammo or self.closest_ammo is None:
-            return 0.00
+            return 0.01 # can go to the possible checkpoints
         return (0.5 - (self.status.ammo * 0.05)) + self.base_priority
