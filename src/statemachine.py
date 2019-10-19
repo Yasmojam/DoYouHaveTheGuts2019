@@ -28,8 +28,8 @@ AVAILABLE_BODY_STATES = [
 
 
 class StateMachine:
-    def __init__(self, GameServer, name, role) -> None:
-        self.status = Status(name=name, role=role)
+    def __init__(self, GameServer, teamname, name, role) -> None:
+        self.status = Status(teamname=teamname, name=name, role=role)
         self.GameServer = GameServer
         self.turret_controls = TurretMovement(GameServer=GameServer, status=self.status)
         self.body_controls = BodyMovement(GameServer=GameServer, status=self.status)
