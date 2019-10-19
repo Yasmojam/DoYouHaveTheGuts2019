@@ -27,4 +27,6 @@ class PatrolState(State):
         self.body_controls.movetopoint(target_position)
 
     def calculate_priority(self, is_current_state: bool) -> None:
-        return self.base_priority + 0.4
+        if self.status.role in [Roles.RED_KEEPER, Roles.BLUE_KEEPER]:
+            return self.base_priority + 0.5
+        return 0
