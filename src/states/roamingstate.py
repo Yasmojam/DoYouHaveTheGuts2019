@@ -16,4 +16,4 @@ class RoamingState(State):
         if self.status.ammo == 0:
             return 0.1
         return ((0.25 - (self.status.ammo * 0.025)) +
-                (0.25 - (self.status.health * 0.025)) + (1 * 0.125))
+                (0.25 - (self.status.health * 0.025)) + self.base_priority)

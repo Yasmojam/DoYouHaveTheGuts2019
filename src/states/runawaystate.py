@@ -27,5 +27,5 @@ class RunAwayState(State):
             ))
             if in_danger:
                 self.tank = tank
-                return 0.75
+                return 0.5 + self.base_priority
         return 0

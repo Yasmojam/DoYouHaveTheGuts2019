@@ -21,10 +21,16 @@ AVAILABLE_BODY_STATES = [
 ]
 
 def index_to_priority(index,length_list):
-    return 0.5-((length_list - 1)*2)
+    return 0.5 - index/((length_list - 1)*2)
 
-body_base_priorities = map(lambda i: index_to_priority(i, len(AVAILABLE_BODY_STATES)), range(len(AVAILABLE_BODY_STATES)))
-turret_base_priorities = map(lambda i: index_to_priority(i, len(AVAILABLE_TURRET_STATES)), range(len(AVAILABLE_TURRET_STATES)))
+body_base_priorities = list(
+    map(lambda i: index_to_priority(i, len(AVAILABLE_BODY_STATES)), range(len(AVAILABLE_BODY_STATES)))
+    )
+
+turret_base_priorities = list(
+    map(lambda i: index_to_priority(i, len(AVAILABLE_TURRET_STATES)), range(len(AVAILABLE_TURRET_STATES)))
+    )
+    
 
 class StateMachine:
     def __init__(self, GameServer, name) -> None:
@@ -66,5 +72,6 @@ class StateMachine:
 
     def perform_current_state(self) -> None:
         logging.info(f"Performing states: {self.current_body_state} {self.current_turret_state}")
+        logging.info(f"Base priorities: Body: {body_base_priorities}\nTurret:{turret_base_priorities}")
         self.current_body_state.perform()
         self.current_turret_state.perform()

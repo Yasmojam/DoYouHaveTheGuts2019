@@ -27,6 +27,6 @@ class AttackState(State):
         enemy = self.status.find_best_enemy_target()
         if enemy is not None and self.status.ammo > 0:
             self.target = enemy
-            return 0.5  # Default as only 2 attacking priorities
+            return 0.5 + self.base_priority  # Default as only 2 attacking priorities
         self.target = None
         return 0

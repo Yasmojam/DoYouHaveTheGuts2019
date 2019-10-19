@@ -13,8 +13,10 @@ class Status:
         self.position = (0, 0)
         self.heading = 0
         self.turret_heading = 0
-        self.health = 5
-        self.ammo = 10
+        self.max_health = 3
+        self.health = self.max_health
+        self.max_ammo = 10
+        self.ammo = self.max_health
         self.points = 0
         self.banked_points = 0
         self.other_tanks = dict()
@@ -64,7 +66,8 @@ class Status:
     def respawn(self) -> None:
         """ We died :( so reset our stats """
         self.points = 0
-        self.health = 5
+        self.health = self.max_health
+        self.ammo = self.max_health
 
     def update_self(self, payload: ObjectUpdate) -> None:
         """

@@ -23,4 +23,4 @@ class ScanState(State):
             self.scanning = False
         time_since_last = time() - self.last_scan_time
         # Priority if it's been more than 10s since last scan
-        return 1 if time_since_last > 5 else 0.1
+        return 0.5 + self.base_priority if time_since_last > 5 else 0.1 
