@@ -13,7 +13,12 @@ class CollectHealthState(State):
             )
 
     def calculate_priority(self, is_current_state: bool) -> None:
+        '''
+        If full health and no health packs nearby -> dont collect health pack
+        
+        '''
         self.closest_health = self.status.find_nearest_health()
-        if self.status.health == 5 or self.closest_health is None:
-            return 0.02
-        return (0.6 - (self.status.health * 0.1)) + (2 * 0.125)
+        if self.status.health == self.status.max_health or self.closest_health is None:
+            return 0.00
+        return 0.5 - ((self.status.health - 1)/((self.status.max_health-1)*2)) + self.base_priority 
+        #hard coded priority + base priority

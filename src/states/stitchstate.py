@@ -14,4 +14,5 @@ class SnitchState(State):
         if self.snitch == None:
             return 0
         distance = calculate_distance(self.status.position, self.snitch.position)
-        return (0.5 - distance / 200) + (3 * 0.125)
+        return (0.5 - distance/200) + self.base_priority
+        #if you cant see it then dont grab it plus base priority

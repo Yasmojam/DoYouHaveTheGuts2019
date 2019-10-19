@@ -12,20 +12,33 @@ from states import (
     AttackState,
     RunAwayState,
     SnitchState,
-    PatrolState
+    PatrolState,
+    DummyState
 )
 
 AVAILABLE_TURRET_STATES = [ScanState, AttackState]
 AVAILABLE_BODY_STATES = [
+    GoToGoalState,
+    SnitchState,
     CollectHealthState,
     CollectAmmoState,
-    RoamingState,
-    GoToGoalState,
     RunAwayState,
     SnitchState,
+    RoamingState,
     PatrolState
 ]
 
+def index_to_priority(index,length_list):
+    return 0.5 - index/((length_list - 1)*2)
+
+body_base_priorities = list(
+    map(lambda i: index_to_priority(i, len(AVAILABLE_BODY_STATES)), range(len(AVAILABLE_BODY_STATES)))
+    )
+
+turret_base_priorities = list(
+    map(lambda i: index_to_priority(i, len(AVAILABLE_TURRET_STATES)), range(len(AVAILABLE_TURRET_STATES)))
+    )
+    
 
 class StateMachine:
     def __init__(self, GameServer, teamname, name, role) -> None:
@@ -33,22 +46,12 @@ class StateMachine:
         self.GameServer = GameServer
         self.turret_controls = TurretMovement(GameServer=GameServer, status=self.status)
         self.body_controls = BodyMovement(GameServer=GameServer, status=self.status)
-        self.turret_states = list(
-            map(
-                lambda State: State(
-                    self.turret_controls, self.body_controls, self.status
-                ),
-                AVAILABLE_TURRET_STATES,
-            )
-        )
-        self.body_states = list(
-            map(
-                lambda State: State(
-                    self.turret_controls, self.body_controls, self.status
-                ),
-                AVAILABLE_BODY_STATES,
-            )
-        )
+        self.turret_states = []
+        for State, priority in zip(AVAILABLE_TURRET_STATES, turret_base_priorities):
+            self.turret_states.append(State(self.turret_controls, self.body_controls, self.status, priority))
+        self.body_states = []
+        for State, priority in zip(AVAILABLE_BODY_STATES, body_base_priorities):
+            self.body_states.append(State(self.turret_controls, self.body_controls, self.status, priority))
         self.current_turret_state_i = 0
         self.current_turret_state = self.turret_states[0]
         self.current_body_state_i = 0
@@ -74,12 +77,18 @@ class StateMachine:
         logging.info(f"Body: {body_priorities}\nTurret: {turret_priorities}")
         self.current_body_state_i = body_priorities.index(max(body_priorities))
         self.current_turret_state_i = turret_priorities.index(max(turret_priorities))
-        self.current_body_state = self.body_states[self.current_body_state_i]
         self.current_turret_state = self.turret_states[self.current_turret_state_i]
+        if isinstance(self.current_turret_state, AttackState):
+            enemy, next_heading = self.current_turret_state.getEnemyAndHeading()
+            if self.current_turret_state.isReadyToFire(enemy, next_heading):
+                self.current_body_state = DummyState(self.turret_controls, self.body_controls, self.status, 0)
+            else:
+                self.current_body_state = self.body_states[self.current_body_state_i]
+        else:
+            self.current_body_state = self.body_states[self.current_body_state_i]
 
     def perform_current_state(self) -> None:
-        logging.info(
-            f"Performing states: {self.current_body_state} {self.current_turret_state}"
-        )
+        logging.info(f"Performing states: {self.current_body_state} {self.current_turret_state}")
+        logging.info(f"Base priorities: Body: {body_base_priorities}\nTurret:{turret_base_priorities}")
         self.current_body_state.perform()
         self.current_turret_state.perform()
