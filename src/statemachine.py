@@ -12,7 +12,8 @@ from states import (
     AttackState,
     RunAwayState,
     SnitchState,
-    PatrolState
+    PatrolState,
+    DummyState
 )
 
 AVAILABLE_TURRET_STATES = [ScanState, AttackState]
