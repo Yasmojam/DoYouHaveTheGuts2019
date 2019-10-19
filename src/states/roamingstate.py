@@ -7,6 +7,9 @@ class RoamingState(State):
         self.body_controls.movetopoint(position)
 
     def calculate_priority(self, is_current_state: bool) -> None:
+        '''
+        Full health + full ammo = low priority
+        '''
         self.target = self.status.find_best_enemy_target()
         if self.target is None:
             return 0

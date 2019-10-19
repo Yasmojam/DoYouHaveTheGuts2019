@@ -3,8 +3,8 @@ from utils import heading_from_to, within_degrees, calculate_distance
 
 
 class AttackState(State):
-    def __init__(self, turret_controls, body_controls, status):
-        super().__init__(turret_controls, body_controls, status)
+    def __init__(self, turret_controls, body_controls, status, priority):
+        super().__init__(turret_controls, body_controls, status, priority)
         self.target = None
 
     def perform(self):

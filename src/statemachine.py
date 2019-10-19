@@ -10,15 +10,21 @@ AVAILABLE_TURRET_STATES = [
     ScanState,
     AttackState,
 ]
+#in priority order important
 AVAILABLE_BODY_STATES = [
+    GoToGoalState,
+    SnitchState,
     CollectHealthState,
     CollectAmmoState,
-    RoamingState,
-    GoToGoalState,
     RunAwayState,
-    SnitchState
+    RoamingState
 ]
 
+def index_to_priority(index,length_list):
+    return 0.5-((length_list - 1)*2)
+
+body_base_priorities = map(lambda i: index_to_priority(i, len(AVAILABLE_BODY_STATES)), range(len(AVAILABLE_BODY_STATES)))
+turret_base_priorities = map(lambda i: index_to_priority(i, len(AVAILABLE_TURRET_STATES)), range(len(AVAILABLE_TURRET_STATES)))
 
 class StateMachine:
     def __init__(self, GameServer, name) -> None:
@@ -26,14 +32,12 @@ class StateMachine:
         self.GameServer = GameServer
         self.turret_controls = TurretMovement(GameServer=GameServer, status=self.status)
         self.body_controls = BodyMovement(GameServer=GameServer, status=self.status)
-        self.turret_states = list(map(
-            lambda State: State(self.turret_controls, self.body_controls, self.status),
-            AVAILABLE_TURRET_STATES
-        ))
-        self.body_states = list(map(
-            lambda State: State(self.turret_controls, self.body_controls, self.status),
-            AVAILABLE_BODY_STATES
-        ))
+        self.turret_states = []
+        for State, priority in zip(AVAILABLE_TURRET_STATES, turret_base_priorities):
+            self.turret_states.append(State(self.turret_controls, self.body_controls, self.status, priority))
+        self.body_states = []
+        for State, priority in zip(AVAILABLE_BODY_STATES, body_base_priorities):
+            self.body_states.append(State(self.turret_controls, self.body_controls, self.status, priority))
         self.current_turret_state_i = 0
         self.current_turret_state = self.turret_states[0]
         self.current_body_state_i = 0

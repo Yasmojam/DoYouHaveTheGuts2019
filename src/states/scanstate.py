@@ -5,8 +5,8 @@ SCAN_TIME = 1.25
 
 
 class ScanState(State):
-    def __init__(self, turret_controls, body_controls, status):
-        super().__init__(turret_controls, body_controls, status)
+    def __init__(self, turret_controls, body_controls, status, priority):
+        super().__init__(turret_controls, body_controls, status, priority)
         self.last_scan_time = time()
         self.scanning = True
         self.start_time = time()
