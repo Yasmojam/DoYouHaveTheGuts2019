@@ -13,6 +13,7 @@ class AttackState(State):
         self.target = None
         self.fireNext = 0
         self.lastFireTime = 0.0
+        self.predicted_enemy_position = []
 
     def predict_enemy_position(self, enemy):
         player_position = np.array(list(self.status.position))
@@ -47,7 +48,7 @@ class AttackState(State):
         enemy = self.target if self.target else self.status.find_best_enemy_target()
         position = self.status.position
 
-        # predicted_enemy_position = self.predict_enemy_position(enemy)
+        self.predicted_enemy_position = self.predict_enemy_position(enemy)
 
         next_heading = heading_from_to(position, enemy.current_pos())
         return (enemy, next_heading)
@@ -55,10 +56,7 @@ class AttackState(State):
     def isReadyToFire(self, target, target_heading) -> bool:
         heading = self.status.turret_heading
 
-        enemy = self.target if self.target else self.status.find_best_enemy_target()
-        predicted_enemy_position = self.predict_enemy_position(enemy)
-
-        distance = calculate_distance(self.status.position, predicted_enemy_position)
+        distance = calculate_distance(self.status.position, self.predicted_enemy_position)
         angle_allowed = (105 - distance) / 5
 
         time_since_last = time() - self.lastFireTime
