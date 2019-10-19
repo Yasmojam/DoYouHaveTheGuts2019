@@ -1,5 +1,5 @@
 # flake8: noqa
-from .dummystate import DummyState
+from .stopstate import StopState
 from .gotogoalstate import GoToGoalState
 from .collecthealthstate import CollectHealthState
 from .collectammostate import CollectAmmoState
