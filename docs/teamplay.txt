@@ -1,0 +1,53 @@
+strategy
+	two keepers, two attackers
+		one keeper in/around each goal
+		two attackers roaming the pitch
+			one attacker in each half at a time
+			not strict about which half you're in
+			swap halves if required
+		tanks have one role at a time, but may switch if required
+
+	if friendly tank dies, go to where it died
+		potentially low health enemy nearby
+		only if within certain distance
+		no point in travelling entire pitch (enemy will probably be gone)
+		attacker willing to travel further for this than keeper
+
+	if friendly tank attacking opponent, attack the same tank
+		prioritise enemy tanks already being attacked over those not being attacked
+		bring em down together
+		focus killing one quickly, rather than attacking both
+
+	every role treats snitch with same priority
+
+	prioritise enemy carrying snitch over other enemies
+
+roles
+	goalkeeper
+		positioned close to friendly goal
+		shoots at opponents approching/near the goal
+		blocks scoring opponents from entering goal
+		physically gets between tank and goal
+		if leaving position for ammo/banking then also do banking/ammo
+		don't bother with health
+
+		ammo problems?
+			only go for ammo in 50(?) unit radius
+
+	attacker
+		chases and attacks enemies
+		sees enemy, follows enemy, shoots enemy
+		if need ammo/health/banking, go get it
+		prioritise low health enemies?
+		camp health/ammo to prey on vulnerable opponents
+
+	bodyguard
+		positions self between enemy and friendly with points
+		acts as meat shield
+		shoots enemies targeting friendly with points
+		only look for health/ammo if carrying points
+		otherwise, die for the cause
+
+	distraction
+		just spin around the pitch
+
