@@ -6,8 +6,8 @@ BLUE_PATROL = [(20, 80), (-20, 80)]
 RED_PATROL  = [(20, -80), (-20, -80)]
 
 class PatrolState(State):
-    def __init__(self, turret_controls, body_controls, status):
-        super().__init__(turret_controls, body_controls, status)
+    def __init__(self, turret_controls, body_controls, status, priority):
+        super().__init__(turret_controls, body_controls, status, priority)
         self.patrol_index = 0
 
     def perform(self) -> None:
@@ -27,5 +27,6 @@ class PatrolState(State):
         self.body_controls.movetopoint(target_position)
 
     def calculate_priority(self, is_current_state: bool) -> None:
-        ## TODO calculate priority
+        if self.status.role in [Roles.RED_KEEPER, Roles.BLUE_KEEPER]:
+            return self.base_priority + 0.5
         return 0
