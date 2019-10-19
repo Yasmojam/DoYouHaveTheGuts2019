@@ -13,15 +13,15 @@ class Message:
 
 class ObjectUpdate:
     def __init__(self, message: Message) -> None:
-        self.name = message['Name']
-        self.id = message['Id']
-        self.type = message['Type']
-        self.x = message['X']
-        self.y = message['Y']
-        self.heading = message['Heading']
-        self.turret_heading = message['TurretHeading']
-        self.health = message['Health']
-        self.ammo = message['Ammo']
+        self.name = message["Name"]
+        self.id = message["Id"]
+        self.type = message["Type"]
+        self.x = message["X"]
+        self.y = message["Y"]
+        self.heading = message["Heading"]
+        self.turret_heading = message["TurretHeading"]
+        self.health = message["Health"]
+        self.ammo = message["Ammo"]
 
 
 class ServerMessageTypes(object):
@@ -84,7 +84,7 @@ class ServerMessageTypes(object):
         SNITCHAPPEARED: "SNITCHAPPEARED",
         GAMETIMEUPDATE: "GAMETIMEUPDATE",
         HITDETECTED: "HITDETECTED",
-        SUCCESSFULLHIT: "SUCCESSFULLHIT"
+        SUCCESSFULLHIT: "SUCCESSFULLHIT",
     }
 
     def toString(self, id):
@@ -95,7 +95,7 @@ class ServerMessageTypes(object):
 
 
 class ServerComms(object):
-    '''
+    """
     TCP comms handler
 
     Server protocol is simple:
@@ -103,7 +103,8 @@ class ServerComms(object):
     * 1st byte is the message type - see ServerMessageTypes
     * 2nd byte is the length in bytes of the payload (so max 255 byte payload)
     * 3rd byte onwards is the payload encoded in JSON
-    '''
+    """
+
     ServerSocket = None
     MessageTypes = ServerMessageTypes()
 
@@ -112,13 +113,13 @@ class ServerComms(object):
         self.ServerSocket.connect((hostname, port))
 
     def readMessage(self):
-        '''
+        """
         Read a message from the server
-        '''
+        """
         messageTypeRaw = self.ServerSocket.recv(1)
         messageLenRaw = self.ServerSocket.recv(1)
-        messageType = struct.unpack('>B', messageTypeRaw)[0]
-        messageLen = struct.unpack('>B', messageLenRaw)[0]
+        messageType = struct.unpack(">B", messageTypeRaw)[0]
+        messageLen = struct.unpack(">B", messageLenRaw)[0]
 
         if messageLen == 0:
             messageData = bytearray()
@@ -126,18 +127,21 @@ class ServerComms(object):
         else:
             messageData = self.ServerSocket.recv(messageLen)
             logging.debug("*** {}".format(messageData))
-            messagePayload = json.loads(messageData.decode('utf-8'))
+            messagePayload = json.loads(messageData.decode("utf-8"))
 
-        logging.debug('Turned message {} into type {} payload {}'.format(
-            binascii.hexlify(messageData),
-            self.MessageTypes.toString(messageType),
-            messagePayload))
+        logging.debug(
+            "Turned message {} into type {} payload {}".format(
+                binascii.hexlify(messageData),
+                self.MessageTypes.toString(messageType),
+                messagePayload,
+            )
+        )
         return Message(messageType, messagePayload)
 
     def sendMessage(self, messageType=None, messagePayload=None):
-        '''
+        """
         Send a message to the server
-        '''
+        """
         message = bytearray()
 
         if messageType is not None:
@@ -153,8 +157,11 @@ class ServerComms(object):
         else:
             message.append(0)
 
-        logging.debug('Turned message type {} payload {} into {}'.format(
-            self.MessageTypes.toString(messageType),
-            messagePayload,
-            binascii.hexlify(message)))
+        logging.debug(
+            "Turned message type {} payload {} into {}".format(
+                self.MessageTypes.toString(messageType),
+                messagePayload,
+                binascii.hexlify(message),
+            )
+        )
         return self.ServerSocket.send(message)

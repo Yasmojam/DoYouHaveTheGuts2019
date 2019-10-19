@@ -12,7 +12,7 @@ def heading_from_to(p1: Vector, p2: Vector) -> float:
     y1 = p1[1]
     x2 = p2[0]
     y2 = p2[1]
-    angle = math.atan2(y2-y1, x2-x1) * (180/math.pi)
+    angle = math.atan2(y2 - y1, x2 - x1) * (180 / math.pi)
     angle = (-angle) % 360
     return abs(angle)
 
@@ -39,7 +39,7 @@ def closest_point(current_point, points) -> Vector:
 
     for other_point in points:
         distance = calculate_distance(current_point, other_point)
-        if (distance < distance_to_closest):
+        if distance < distance_to_closest:
             closest = other_point
             distance_to_closest = distance
     return closest
@@ -47,7 +47,7 @@ def closest_point(current_point, points) -> Vector:
 
 def within_degrees(error, angle, goal):
     anglediff = (angle - goal + 180 + 360) % 360 - 180
-    return - error / 2 <= anglediff <= error / 2
+    return -error / 2 <= anglediff <= error / 2
 
 
 def calculate_distance(point1, point2) -> float:
@@ -57,4 +57,4 @@ def calculate_distance(point1, point2) -> float:
     x = point2[0] - point1[0]
     y = point2[1] - point1[1]
 
-    return (math.sqrt(x*x + y*y))
+    return math.sqrt(x * x + y * y)

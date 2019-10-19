@@ -26,14 +26,14 @@ class Status:
         """ Process an incoming server message """
         if message.type == ServerMessageTypes.OBJECTUPDATE:
             payload = ObjectUpdate(message.payload)
-            if payload.type == 'Tank':
+            if payload.type == "Tank":
                 if payload.name == self.name:
                     self.update_self(payload)
                 else:
                     self.update_enemy(payload)
             elif payload.type in COLLECTABLE_TYPES:
                 self.update_collectable(payload)
-                if payload.type == 'Snitch':
+                if payload.type == "Snitch":
                     self.snitch_carrier_id = None
         elif message.type == ServerMessageTypes.KILL:
             self.kill()
@@ -42,11 +42,11 @@ class Status:
         elif message.type == ServerMessageTypes.SNITCHAPPEARED:
             self.snitch_spawned()
         elif message.type == ServerMessageTypes.SNITCHPICKUP:
-            if message.payload['Id'] == self.id:
+            if message.payload["Id"] == self.id:
                 self.points += 20
                 self.snitch_carrier_id = None
             else:
-                self.snitch_carrier_id = message.payload['Id']
+                self.snitch_carrier_id = message.payload["Id"]
         elif message.type == ServerMessageTypes.DESTROYED:
             self.respawn()
 
@@ -90,7 +90,7 @@ class Status:
             self.collectables[payload.id].update(payload)
 
     def find_nearest_ammo(self) -> Collectable:
-        recently_seen = self.recently_seen_collectables(5, typ='AmmoPickup')
+        recently_seen = self.recently_seen_collectables(5, typ="AmmoPickup")
         if len(recently_seen) == 0:
             return None
         positions = list(map(lambda t: t.position, recently_seen))
@@ -98,7 +98,7 @@ class Status:
         return recently_seen[i]
 
     def find_nearest_health(self) -> Collectable:
-        recently_seen = self.recently_seen_collectables(5, typ='HealthPickup')
+        recently_seen = self.recently_seen_collectables(5, typ="HealthPickup")
         if len(recently_seen) == 0:
             return None
         positions = list(map(lambda t: t.position, recently_seen))
@@ -155,7 +155,7 @@ class Status:
         """ Find the snitch """
         if not self.snitch_available:
             return None
-        recently_seen = self.recently_seen_collectables(5, typ='Snitch')
+        recently_seen = self.recently_seen_collectables(5, typ="Snitch")
         if len(recently_seen) == 0:
             return None
         return recently_seen[0]
@@ -176,5 +176,7 @@ class Status:
         return recently_seen
 
     def __str__(self):
-        return (f"<{self.name}> Position: {self.position} Heading: {self.heading} "
-                f"Turret: {self.turret_heading} Health: {self.health} Ammo: {self.ammo}")
+        return (
+            f"<{self.name}> Position: {self.position} Heading: {self.heading} "
+            f"Turret: {self.turret_heading} Health: {self.health} Ammo: {self.ammo}"
+        )
