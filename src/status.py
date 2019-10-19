@@ -112,6 +112,8 @@ class Status:
 
     def find_best_enemy_target(self) -> Enemy:
         def score(enemy):
+            if enemy is None:
+                return 1 # don't target
             dist_score = calculate_distance(self.position, enemy.current_pos()) / 100
             hp_score = enemy.health * 0.1
             return dist_score * hp_score
@@ -121,13 +123,17 @@ class Status:
             return snitch_carrier
 
         lowest = self.find_lowest_enemy()
+        lowest_friendly = self.find_lowest_friendly()
         nearest = self.find_nearest_enemy()
 
-        if not lowest:
-            return nearest
-        elif not nearest:
-            return lowest
-        return lowest if score(lowest) < score(nearest) else nearest
+        possible_targets = [lowest, lowest_friendly, nearest]
+        scores = list(map(score, possible_targets))
+        lowest_score = min(scores)
+
+        for i, target in enumerate(possible_targets):
+            if scores[i] == lowest_score:
+                return target
+        return lowest
 
     def find_snitch_carrier(self) -> Enemy:
         if self.snitch_carrier_id is None:
@@ -148,7 +154,7 @@ class Status:
         return recently_seen[i]
 
     def find_lowest_enemy(self) -> Enemy:
-        """ Find the nearest enemy tank """
+        """ Find the lowest enemy tank """
         recently_seen = self.recently_seen_enemies(5)
         if len(recently_seen) == 0:
             return None
@@ -158,6 +164,20 @@ class Status:
             return None
         i = healths.index(min(healths))
         return recently_seen[i]
+    
+    def find_lowest_friendly(self) -> Enemy:
+        """ Find the lowest friendly tank """
+        recently_seen = self.recently_seen_friendlies(5)
+        if len(recently_seen) == 0:
+            return None
+        healths = list(map(lambda t: t.health, recently_seen))
+        healths = list(filter(lambda h: h != 0, healths))
+        if len(healths) == 0:
+            return None
+        i = healths.index(min(healths))
+        if healths[i] == 1:
+            return recently_seen[i]
+        return None
 
     def find_snitch(self) -> Collectable:
         """ Find the snitch """
