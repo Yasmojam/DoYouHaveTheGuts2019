@@ -153,6 +153,9 @@ class Status:
         if len(recently_seen) == 0:
             return None
         healths = list(map(lambda t: t.health, recently_seen))
+        healths = list(filter(lambda h: h != 0, healths))
+        if len(healths) == 0:
+            return None
         i = healths.index(min(healths))
         return recently_seen[i]
 
