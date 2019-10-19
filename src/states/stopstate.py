@@ -15,7 +15,7 @@ class StopState(State):
         if isinstance(self.current_turret_state, AttackState):
             enemy, next_heading = self.current_turret_state.getEnemyAndHeading()
             if self.current_turret_state.isReadyToFire(enemy, next_heading):
-                return 0.7 + self.base_priority
+                return 0.5 + self.base_priority
             else:
                 return 0
         else:

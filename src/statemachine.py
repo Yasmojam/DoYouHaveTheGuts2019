@@ -24,9 +24,9 @@ AVAILABLE_BODY_STATES = [
     CollectAmmoState,
     RunAwayState,
     SnitchState,
+    StopState,
     RoamingState,
-    PatrolState,
-    StopState
+    PatrolState
 ]
 
 def index_to_priority(index,length_list):
