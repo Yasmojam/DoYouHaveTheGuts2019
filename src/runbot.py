@@ -6,6 +6,8 @@ from multiprocessing import Process
 from server import ServerMessageTypes, ServerComms
 from statemachine import StateMachine
 import time
+from roles import Roles
+
 
 # Parse command line args
 parser = argparse.ArgumentParser()

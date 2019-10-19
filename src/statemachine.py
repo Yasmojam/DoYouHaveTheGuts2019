@@ -22,12 +22,13 @@ AVAILABLE_BODY_STATES = [
     GoToGoalState,
     RunAwayState,
     SnitchState,
+    PatrolState
 ]
 
 
 class StateMachine:
-    def __init__(self, GameServer, name) -> None:
-        self.status = Status(name=name)
+    def __init__(self, GameServer, name, role) -> None:
+        self.status = Status(name=name, role=role)
         self.GameServer = GameServer
         self.turret_controls = TurretMovement(GameServer=GameServer, status=self.status)
         self.body_controls = BodyMovement(GameServer=GameServer, status=self.status)
