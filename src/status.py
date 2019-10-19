@@ -7,7 +7,8 @@ from utils import closest_point, calculate_distance
 
 
 class Status:
-    def __init__(self, name: str, role) -> None:
+    def __init__(self, teamname: str name: str, role) -> None:
+        self.teamname = teamname
         self.name = name
         self.id = None
         self.role = role
@@ -170,7 +171,7 @@ class Status:
         for tank in self.other_tanks.values():
             if current_time - tank.last_seen < seconds:
                 tank_team = tank.name.split(":")[0]
-                if tank_team != "PYJIN":
+                if tank_team != self.teamname:
                     recently_seen.append(tank)
         return recently_seen
 
