@@ -21,20 +21,23 @@ class BodyMovement:
         self.turntoheading(heading)
         # move forwards to coords
         logging.info(f"moving toward {target}")
-        if (current_coords != target):
+        if current_coords != target:
             self.moveforwarddistance(5)
 
     def turntoheading(self, heading):
-        self.GameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {
-            'Amount': heading})
+        self.GameServer.sendMessage(
+            ServerMessageTypes.TURNTOHEADING, {"Amount": heading}
+        )
 
     def moveforwarddistance(self, amount):
-        self.GameServer.sendMessage(ServerMessageTypes.MOVEFORWARDDISTANCE, {
-            'Amount': amount})
+        self.GameServer.sendMessage(
+            ServerMessageTypes.MOVEFORWARDDISTANCE, {"Amount": amount}
+        )
 
     def movebackwarddistance(self, amount):
-        self.GameServer.sendMessage(ServerMessageTypes.MOVEBACKWARDDISTANCE, {
-            'Amount': amount})
+        self.GameServer.sendMessage(
+            ServerMessageTypes.MOVEBACKWARDDISTANCE, {"Amount": amount}
+        )
 
     def moveforwardtoggle(self):
         self.GameServer.sendMessage(ServerMessageTypes.TOGGLEFORWARD)

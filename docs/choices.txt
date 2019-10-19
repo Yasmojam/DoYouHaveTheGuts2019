@@ -1,7 +1,7 @@
-Morgan Stanley
-IBM
-Craneware
-School of computing science
+1 1 2 1 1 = 6  Morgan Stanley
+2 4 3 2 4 = 15 IBM
+4 3 1 4 3 = 15 Craneware 
+3 2 4 3 2 = 14 School of computing science
 
 ===============
 SIDE CHALLENGES
