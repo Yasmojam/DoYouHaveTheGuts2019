@@ -41,7 +41,6 @@ class AttackState(State):
         angle_allowed = (105 - distance) / 5
 
         time_since_last = time() - self.lastFireTime
-        print("***********" + str(time_since_last) + "************")
 
         return within_degrees(angle_allowed, heading, target_heading) and (time_since_last > 2)
 
