@@ -27,4 +27,5 @@ class PatrolState(State):
         self.body_controls.movetopoint(target_position)
 
     def calculate_priority(self, is_current_state: bool) -> None:
-        return 1
+        ## TODO calculate priority
+        return 0
