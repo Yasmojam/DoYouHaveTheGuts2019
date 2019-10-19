@@ -9,6 +9,8 @@ import time
 
 # Parse command line args
 parser = argparse.ArgumentParser()
+parser.add_argument('-e', '--eight', action='store_true',
+                    help='Spawn enemy team')
 parser.add_argument('-d', '--debug', action='store_true',
                     help='Enable debug output')
 parser.add_argument('-H', '--hostname', default='127.0.0.1',
@@ -70,12 +72,24 @@ def run_bot(name):
 TEAM_NAME = 'PYJIN'
 PLAYERS = ['Shrek', 'Fiona', 'Donkey', 'Puss']
 
+ENEMY_NAME = 'NIN'
+ENEMY_PLAYERS = ['Mario', 'Luigi', 'Yoshi', 'Peach']
+
 
 if __name__ == '__main__':
     processes = [Process(target=run_bot, args=(f"{TEAM_NAME}:{player}",)) for player in PLAYERS]
     for process in processes:
         process.start()
 
+    if args.eight:
+        enemy_processes = [Process(target=run_bot, args=(f"{ENEMY_NAME}:{player}",)) for player in ENEMY_PLAYERS]
+        for process in enemy_processes:
+            process.start()
+        
+        for process in enemy_processes:
+            process.join()
+
     for process in processes:
         process.join()
+    
 
