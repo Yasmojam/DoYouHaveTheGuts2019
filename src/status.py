@@ -132,7 +132,7 @@ class Status:
     def find_snitch_carrier(self) -> Enemy:
         if self.snitch_carrier_id is None:
             return None
-        recently_seen = self.recently_seen_tanks(2)
+        recently_seen = self.recently_seen_enemies(2)
         for tank in recently_seen:
             if tank.id == self.snitch_carrier_id:
                 return tank

@@ -1,5 +1,5 @@
 from .state import State
-
+from roles import Roles
 
 class RoamingState(State):
     def perform(self) -> None:
@@ -15,5 +15,6 @@ class RoamingState(State):
             return 0
         if self.status.ammo == 0:
             return 0
-        return (0.25 - (self.status.health * 0.025)) + (0.25 - (self.status.ammo * 0.0125)) + self.base_priority
-        
+        if self.status.role in [Roles.RED_ATTACKER, Roles.BLUE_ATTACKER]:
+            return (0.25 - (self.status.health * 0.025)) + (0.25 - (self.status.ammo * 0.0125)) + self.base_priority
+        return 0
