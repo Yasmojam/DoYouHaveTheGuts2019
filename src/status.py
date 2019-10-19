@@ -164,9 +164,11 @@ class Status:
     def recently_seen_tanks(self, seconds) -> List[Enemy]:
         current_time = time()
         recently_seen = []
-        for tank_id, enemy in self.other_tanks.items():
-            if current_time - enemy.last_seen < seconds:
-                recently_seen.append(enemy)
+        for tank in self.other_tanks.values():
+            if current_time - tank.last_seen < seconds:
+                tank_team = tank.name.split(":")[0]
+                if tank_team != "PYJIN":
+                    recently_seen.append(tank)
         return recently_seen
 
     def recently_seen_collectables(self, seconds, typ) -> List[Collectable]:
