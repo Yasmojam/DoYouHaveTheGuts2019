@@ -13,15 +13,15 @@ class Message:
 
 class ObjectUpdate:
     def __init__(self, message: Message) -> None:
-        self.name = message['Name']
-        self.id = message['Id']
-        self.type = message['Type']
-        self.x = message['X']
-        self.y = message['Y']
-        self.heading = message['Heading']
-        self.turret_heading = message['TurretHeading']
-        self.health = message['Health']
-        self.ammo = message['Ammo']
+        self.name = message["Name"]
+        self.id = message["Id"]
+        self.type = message["Type"]
+        self.x = message["X"]
+        self.y = message["Y"]
+        self.heading = message["Heading"]
+        self.turret_heading = message["TurretHeading"]
+        self.health = message["Health"]
+        self.ammo = message["Ammo"]
 
 class ServerMessageTypes(object):
     TEST = 0
@@ -83,7 +83,7 @@ class ServerMessageTypes(object):
         SNITCHAPPEARED: "SNITCHAPPEARED",
         GAMETIMEUPDATE: "GAMETIMEUPDATE",
         HITDETECTED: "HITDETECTED",
-        SUCCESSFULLHIT: "SUCCESSFULLHIT"
+        SUCCESSFULLHIT: "SUCCESSFULLHIT",
     }
     
     def toString(self, id):
@@ -94,7 +94,7 @@ class ServerMessageTypes(object):
 
 
 class ServerComms(object):
-    '''
+    """
     TCP comms handler
     
     Server protocol is simple:
@@ -102,7 +102,8 @@ class ServerComms(object):
     * 1st byte is the message type - see ServerMessageTypes
     * 2nd byte is the length in bytes of the payload (so max 255 byte payload)
     * 3rd byte onwards is the payload encoded in JSON
-    '''
+    """
+
     ServerSocket = None
     MessageTypes = ServerMessageTypes()
     
@@ -120,9 +121,9 @@ class ServerComms(object):
         return messageData
 
     def readMessage(self):
-        '''
+        """
         Read a message from the server
-        '''
+        """
         messageTypeRaw = self.ServerSocket.recv(1)
         messageLenRaw = self.ServerSocket.recv(1)
         messageType = struct.unpack('>B', messageTypeRaw)[0]
@@ -145,9 +146,9 @@ class ServerComms(object):
         return Message(messageType, messagePayload)
         
     def sendMessage(self, messageType=None, messagePayload=None):
-        '''
+        """
         Send a message to the server
-        '''
+        """
         message = bytearray()
         
         if messageType is not None:

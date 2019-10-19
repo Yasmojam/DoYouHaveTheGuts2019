@@ -1,11 +1,10 @@
 from server import ObjectUpdate
 from time import time
 
-COLLECTABLE_TYPES = set(['AmmoPickup', 'HealthPickup', 'Snitch'])
+COLLECTABLE_TYPES = set(["AmmoPickup", "HealthPickup", "Snitch"])
 
 
 class Collectable:
-
     def __init__(self, payload: ObjectUpdate) -> None:
         self.name = payload.name
         self.id = payload.id

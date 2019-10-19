@@ -20,10 +20,9 @@ args = parser.parse_args()
 
 # Set up console logging
 if args.debug:
-    logging.basicConfig(
-        format='[%(asctime)s] %(message)s', level=logging.DEBUG)
+    logging.basicConfig(format="[%(asctime)s] %(message)s", level=logging.DEBUG)
 else:
-    logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.INFO)
+    logging.basicConfig(format="[%(asctime)s] %(message)s", level=logging.INFO)
 
 
 num_bots = 1
