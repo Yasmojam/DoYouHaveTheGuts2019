@@ -2,61 +2,102 @@
 import logging
 import argparse
 import threading
+from multiprocessing import Process
 from server import ServerMessageTypes, ServerComms
 from statemachine import StateMachine
 import time
+from roles import Roles
+
 
 # Parse command line args
 parser = argparse.ArgumentParser()
+parser.add_argument('-e', '--eight', action='store_true',
+                    help='Spawn enemy team')
 parser.add_argument('-d', '--debug', action='store_true',
                     help='Enable debug output')
 parser.add_argument('-H', '--hostname', default='127.0.0.1',
                     help='Hostname to connect to')
 parser.add_argument('-p', '--port', default=8052,
                     type=int, help='Port to connect to')
+<<<<<<< HEAD
 parser.add_argument('-n', '--name', default='PYJIN:TimScorer', help='Name of bot')
+=======
+
+parser.add_argument('-n', '--name', default='TeamScorer:TimScorer', help='Name of bot')
+>>>>>>> b84dca6ed54aef98ceab42bb4e9e2800cb863a3a
 args = parser.parse_args()
 
 # Set up console logging
 if args.debug:
-    logging.basicConfig(
-        format='[%(asctime)s] %(message)s', level=logging.DEBUG)
+    logging.basicConfig(format="[%(asctime)s] %(message)s", level=logging.DEBUG)
 else:
-    logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.INFO)
+    logging.basicConfig(format="[%(asctime)s] %(message)s", level=logging.INFO)
 
 
-# Connect to game server
-GameServer = ServerComms(args.hostname, args.port)
-
-# Spawn our tank
-logging.info("Creating tank with name '{}'".format(args.name))
-GameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
-
-state_machine = StateMachine(GameServer=GameServer, name=args.name)
+num_bots = 1
 
 
-lock = threading.Lock()
+def run_bot(name):
+
+    # Connect to game server
+    GameServer = ServerComms(args.hostname, args.port)
+
+    # Spawn our tank
+    logging.info("Creating tank with name '{}'".format(name))
+    GameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': name})
+
+    state_machine = StateMachine(GameServer=GameServer, name=name, role=Roles.RED_ATTACKER)
 
 
-def recieve_messages():
-    while True:
-        message = GameServer.readMessage()
-        lock.acquire()
-        state_machine.update(message)
-        lock.release()
+
+    lock = threading.Lock()
 
 
-def run_state_machine():
-    while True:
-        lock.acquire()
-        state_machine.choose_state()
-        state_machine.perform_current_state()
-        lock.release()
-        time.sleep(0.2)
+    def recieve_messages():
+        while True:
+            message = GameServer.readMessage()
+            lock.acquire()
+            state_machine.update(message)
+            lock.release()
 
 
-message_thread = threading.Thread(target=recieve_messages)
-message_thread.start()
+    def run_state_machine():
+        while True:
+            lock.acquire()
+            state_machine.choose_state()
+            state_machine.perform_current_state()
+            lock.release()
+            time.sleep(0.2)
 
-state_machine_thread = threading.Thread(target=run_state_machine)
-state_machine_thread.start()
+    message_thread = threading.Thread(target=recieve_messages)
+    message_thread.start()
+
+    state_machine_thread = threading.Thread(target=run_state_machine)
+    state_machine_thread.start()
+
+
+
+TEAM_NAME = 'PYJIN'
+PLAYERS = ['Shrek', 'Fiona', 'Donkey', 'Puss']
+
+ENEMY_NAME = 'NIN'
+ENEMY_PLAYERS = ['Mario', 'Luigi', 'Yoshi', 'Peach']
+
+
+if __name__ == '__main__':
+    processes = [Process(target=run_bot, args=(f"{TEAM_NAME}:{player}",)) for player in PLAYERS]
+    for process in processes:
+        process.start()
+
+    if args.eight:
+        enemy_processes = [Process(target=run_bot, args=(f"{ENEMY_NAME}:{player}",)) for player in ENEMY_PLAYERS]
+        for process in enemy_processes:
+            process.start()
+        
+        for process in enemy_processes:
+            process.join()
+
+    for process in processes:
+        process.join()
+    
+

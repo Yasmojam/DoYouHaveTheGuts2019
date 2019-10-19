@@ -70,7 +70,7 @@ class ServerMessageTypes(object):
         SNITCHAPPEARED: "SNITCHAPPEARED",
         GAMETIMEUPDATE: "GAMETIMEUPDATE",
         HITDETECTED: "HITDETECTED",
-        SUCCESSFULLHIT: "SUCCESSFULLHIT"
+        SUCCESSFULLHIT: "SUCCESSFULLHIT",
     }
 
     def toString(self, id):
@@ -81,7 +81,7 @@ class ServerMessageTypes(object):
 
 
 class ServerComms(object):
-    '''
+    """
     TCP comms handler
 
     Server protocol is simple:
@@ -89,7 +89,8 @@ class ServerComms(object):
     * 1st byte is the message type - see ServerMessageTypes
     * 2nd byte is the length in bytes of the payload (so max 255 byte payload)
     * 3rd byte onwards is the payload encoded in JSON
-    '''
+    """
+
     ServerSocket = None
     MessageTypes = ServerMessageTypes()
 
@@ -98,13 +99,13 @@ class ServerComms(object):
         self.ServerSocket.connect((hostname, port))
 
     def readMessage(self):
-        '''
+        """
         Read a message from the server
-        '''
+        """
         messageTypeRaw = self.ServerSocket.recv(1)
         messageLenRaw = self.ServerSocket.recv(1)
-        messageType = struct.unpack('>B', messageTypeRaw)[0]
-        messageLen = struct.unpack('>B', messageLenRaw)[0]
+        messageType = struct.unpack(">B", messageTypeRaw)[0]
+        messageLen = struct.unpack(">B", messageLenRaw)[0]
 
         if messageLen == 0:
             messageData = bytearray()
@@ -112,18 +113,21 @@ class ServerComms(object):
         else:
             messageData = self.ServerSocket.recv(messageLen)
             logging.debug("*** {}".format(messageData))
-            messagePayload = json.loads(messageData.decode('utf-8'))
+            messagePayload = json.loads(messageData.decode("utf-8"))
 
-        logging.debug('Turned message {} into type {} payload {}'.format(
-            binascii.hexlify(messageData),
-            self.MessageTypes.toString(messageType),
-            messagePayload))
+        logging.debug(
+            "Turned message {} into type {} payload {}".format(
+                binascii.hexlify(messageData),
+                self.MessageTypes.toString(messageType),
+                messagePayload,
+            )
+        )
         return Message(messageType, messagePayload)
 
     def sendMessage(self, messageType=None, messagePayload=None):
-        '''
+        """
         Send a message to the server
-        '''
+        """
         message = bytearray()
 
         if messageType is not None:
@@ -139,30 +143,31 @@ class ServerComms(object):
         else:
             message.append(0)
 
-        logging.debug('Turned message type {} payload {} into {}'.format(
-            self.MessageTypes.toString(messageType),
-            messagePayload,
-            binascii.hexlify(message)))
+        logging.debug(
+            "Turned message type {} payload {} into {}".format(
+                self.MessageTypes.toString(messageType),
+                messagePayload,
+                binascii.hexlify(message),
+            )
+        )
         return self.ServerSocket.send(message)
 
 
 # Parse command line args
 parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--debug', action='store_true',
-                    help='Enable debug output')
-parser.add_argument('-H', '--hostname', default='127.0.0.1',
-                    help='Hostname to connect to')
-parser.add_argument('-p', '--port', default=8052,
-                    type=int, help='Port to connect to')
-parser.add_argument('-n', '--name', default='RandomBot', help='Name of bot')
+parser.add_argument("-d", "--debug", action="store_true", help="Enable debug output")
+parser.add_argument(
+    "-H", "--hostname", default="127.0.0.1", help="Hostname to connect to"
+)
+parser.add_argument("-p", "--port", default=8052, type=int, help="Port to connect to")
+parser.add_argument("-n", "--name", default="RandomBot", help="Name of bot")
 args = parser.parse_args()
 
 # Set up console logging
 if args.debug:
-    logging.basicConfig(
-        format='[%(asctime)s] %(message)s', level=logging.DEBUG)
+    logging.basicConfig(format="[%(asctime)s] %(message)s", level=logging.DEBUG)
 else:
-    logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.INFO)
+    logging.basicConfig(format="[%(asctime)s] %(message)s", level=logging.INFO)
 
 
 # Connect to game server
@@ -170,7 +175,7 @@ GameServer = ServerComms(args.hostname, args.port)
 
 # Spawn our tank
 logging.info("Creating tank with name '{}'".format(args.name))
-GameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
+GameServer.sendMessage(ServerMessageTypes.CREATETANK, {"Name": args.name})
 
 # Main loop - read game messages, ignore them and randomly perform actions
 i = 0
@@ -183,12 +188,14 @@ while True:
             GameServer.sendMessage(ServerMessageTypes.FIRE)
     elif i == 10:
         logging.info("Turning randomly")
-        GameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {
-                               'Amount': random.randint(0, 359)})
+        GameServer.sendMessage(
+            ServerMessageTypes.TURNTOHEADING, {"Amount": random.randint(0, 359)}
+        )
     elif i == 15:
         logging.info("Moving randomly")
-        GameServer.sendMessage(ServerMessageTypes.MOVEFORWARDDISTANCE, {
-                               'Amount': random.randint(0, 10)})
+        GameServer.sendMessage(
+            ServerMessageTypes.MOVEFORWARDDISTANCE, {"Amount": random.randint(0, 10)}
+        )
     i = i + 1
     if i > 20:
         i = 0

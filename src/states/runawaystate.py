@@ -20,11 +20,13 @@ class RunAwayState(State):
         baby_pos = self.status.position
         seentanks = self.status.recently_seen_tanks(2)
         for tank in seentanks:
-            in_danger = all((
-                tank.is_aiming_at(baby_pos),
-                tank.has_ammo(),
-                calculate_distance(self.status.position, tank.current_pos()) < 35
-            ))
+            in_danger = all(
+                (
+                    tank.is_aiming_at(baby_pos),
+                    tank.has_ammo(),
+                    calculate_distance(self.status.position, tank.current_pos()) < 35,
+                )
+            )
             if in_danger:
                 self.tank = tank
                 return 0.5 + self.base_priority
