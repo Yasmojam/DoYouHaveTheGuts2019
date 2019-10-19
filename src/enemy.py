@@ -33,6 +33,9 @@ class Enemy:
     def current_pos(self) -> Tuple[float, float]:
         return self.position[-1]
 
+    def previous_pos(self) -> Tuple[float, float]:
+        return self.position[-2]
+
     def is_aiming_at(self, position: Vector) -> bool:
         """
         Returns true if the enemy tank is aiming at the given position
