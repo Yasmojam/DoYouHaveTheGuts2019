@@ -4,7 +4,7 @@ from bodymovement import BodyMovement
 from turretmovement import TurretMovement
 import logging
 from states import (RoamingState, GoToGoalState, CollectHealthState, CollectAmmoState,
-                    ScanState, AttackState, RunAwayState, SnitchState)
+                    ScanState, AttackState, RunAwayState, SnitchState, PatrolState)
 
 AVAILABLE_TURRET_STATES = [
     ScanState,
@@ -16,13 +16,14 @@ AVAILABLE_BODY_STATES = [
     RoamingState,
     GoToGoalState,
     RunAwayState,
-    SnitchState
+    SnitchState,
+    PatrolState
 ]
 
 
 class StateMachine:
-    def __init__(self, GameServer, name) -> None:
-        self.status = Status(name=name)
+    def __init__(self, GameServer, name, role) -> None:
+        self.status = Status(name=name, role=role)
         self.GameServer = GameServer
         self.turret_controls = TurretMovement(GameServer=GameServer, status=self.status)
         self.body_controls = BodyMovement(GameServer=GameServer, status=self.status)

@@ -5,6 +5,8 @@ import threading
 from server import ServerMessageTypes, ServerComms
 from statemachine import StateMachine
 import time
+from roles import Roles
+
 
 # Parse command line args
 parser = argparse.ArgumentParser()
@@ -14,7 +16,7 @@ parser.add_argument('-H', '--hostname', default='127.0.0.1',
                     help='Hostname to connect to')
 parser.add_argument('-p', '--port', default=8052,
                     type=int, help='Port to connect to')
-parser.add_argument('-n', '--name', default='TimScorer', help='Name of bot')
+parser.add_argument('-n', '--name', default='Best:TimScorer', help='Name of bot')
 args = parser.parse_args()
 
 # Set up console logging
@@ -29,10 +31,11 @@ else:
 GameServer = ServerComms(args.hostname, args.port)
 
 # Spawn our tank
-logging.info("Creating tank with name '{}'".format(args.name))
+role = Roles.RED_KEEPER
+logging.info("Creating tank with name '{}' and role '{}'".format(args.name, role))
 GameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
 
-state_machine = StateMachine(GameServer=GameServer, name=args.name)
+state_machine = StateMachine(GameServer=GameServer, name=args.name, role=role)
 
 
 lock = threading.Lock()
