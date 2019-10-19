@@ -23,7 +23,6 @@ class ObjectUpdate:
         self.health = message['Health']
         self.ammo = message['Ammo']
 
-
 class ServerMessageTypes(object):
     TEST = 0
     CREATETANK = 1
@@ -38,7 +37,7 @@ class ServerMessageTypes(object):
     TURNTURRETTOHEADING = 10
     TURNTOHEADING = 11
     MOVEFORWARDDISTANCE = 12
-    MOVEBACKWARDDISTANCE = 13
+    MOVEBACKWARSDISTANCE = 13
     STOPALL = 14
     STOPTURN = 15
     STOPMOVE = 16
@@ -54,7 +53,7 @@ class ServerMessageTypes(object):
     GAMETIMEUPDATE = 26
     HITDETECTED = 27
     SUCCESSFULLHIT = 28
-
+    
     strings = {
         TEST: "TEST",
         CREATETANK: "CREATETANK",
@@ -69,7 +68,7 @@ class ServerMessageTypes(object):
         TURNTURRETTOHEADING: "TURNTURRETTOHEADING",
         TURNTOHEADING: "TURNTOHEADING",
         MOVEFORWARDDISTANCE: "MOVEFORWARDDISTANCE",
-        MOVEBACKWARDDISTANCE: "MOVEBACKWARDSDISTANCE",
+        MOVEBACKWARSDISTANCE: "MOVEBACKWARDSDISTANCE",
         STOPALL: "STOPALL",
         STOPTURN: "STOPTURN",
         STOPMOVE: "STOPMOVE",
@@ -86,7 +85,7 @@ class ServerMessageTypes(object):
         HITDETECTED: "HITDETECTED",
         SUCCESSFULLHIT: "SUCCESSFULLHIT"
     }
-
+    
     def toString(self, id):
         if id in self.strings.keys():
             return self.strings[id]
@@ -97,19 +96,28 @@ class ServerMessageTypes(object):
 class ServerComms(object):
     '''
     TCP comms handler
-
+    
     Server protocol is simple:
-
+    
     * 1st byte is the message type - see ServerMessageTypes
     * 2nd byte is the length in bytes of the payload (so max 255 byte payload)
     * 3rd byte onwards is the payload encoded in JSON
     '''
     ServerSocket = None
     MessageTypes = ServerMessageTypes()
-
+    
+    
     def __init__(self, hostname, port):
         self.ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ServerSocket.connect((hostname, port))
+
+    def readTolength(self, length):
+        messageData = self.ServerSocket.recv(length)
+        while len(messageData) < length:
+            buffData = self.ServerSocket.recv(length - len(messageData))
+            if buffData:
+                messageData += buffData
+        return messageData
 
     def readMessage(self):
         '''
@@ -119,40 +127,42 @@ class ServerComms(object):
         messageLenRaw = self.ServerSocket.recv(1)
         messageType = struct.unpack('>B', messageTypeRaw)[0]
         messageLen = struct.unpack('>B', messageLenRaw)[0]
-
+        
         if messageLen == 0:
             messageData = bytearray()
-            messagePayload = None
+            messagePayload = {'messageType': messageType}
         else:
-            messageData = self.ServerSocket.recv(messageLen)
+            messageData = self.readTolength(messageLen)
             logging.debug("*** {}".format(messageData))
+            logging.info(messageData.decode('utf-8'))
             messagePayload = json.loads(messageData.decode('utf-8'))
-
+            messagePayload['messageType'] = messageType
+            
         logging.debug('Turned message {} into type {} payload {}'.format(
             binascii.hexlify(messageData),
             self.MessageTypes.toString(messageType),
             messagePayload))
         return Message(messageType, messagePayload)
-
+        
     def sendMessage(self, messageType=None, messagePayload=None):
         '''
         Send a message to the server
         '''
         message = bytearray()
-
+        
         if messageType is not None:
             message.append(messageType)
         else:
             message.append(0)
-
+        
         if messagePayload is not None:
             messageString = json.dumps(messagePayload)
             message.append(len(messageString))
             message.extend(str.encode(messageString))
-
+                
         else:
             message.append(0)
-
+        
         logging.debug('Turned message type {} payload {} into {}'.format(
             self.MessageTypes.toString(messageType),
             messagePayload,

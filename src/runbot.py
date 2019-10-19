@@ -2,6 +2,7 @@
 import logging
 import argparse
 import threading
+from multiprocessing import Process
 from server import ServerMessageTypes, ServerComms
 from statemachine import StateMachine
 import time
@@ -14,7 +15,7 @@ parser.add_argument('-H', '--hostname', default='127.0.0.1',
                     help='Hostname to connect to')
 parser.add_argument('-p', '--port', default=8052,
                     type=int, help='Port to connect to')
-parser.add_argument('-n', '--name', default='TimScorer', help='Name of bot')
+parser.add_argument('-n', '--name', default='TeamScorer:TimScorer', help='Name of bot')
 args = parser.parse_args()
 
 # Set up console logging
@@ -25,38 +26,57 @@ else:
     logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.INFO)
 
 
-# Connect to game server
-GameServer = ServerComms(args.hostname, args.port)
+num_bots = 1
 
-# Spawn our tank
-logging.info("Creating tank with name '{}'".format(args.name))
-GameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
+def run_bot(name):
 
-state_machine = StateMachine(GameServer=GameServer, name=args.name)
+    # Connect to game server
+    GameServer = ServerComms(args.hostname, args.port)
 
+    # Spawn our tank
+    logging.info("Creating tank with name '{}'".format(name))
+    GameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': name})
 
-lock = threading.Lock()
-
-
-def recieve_messages():
-    while True:
-        message = GameServer.readMessage()
-        lock.acquire()
-        state_machine.update(message)
-        lock.release()
+    state_machine = StateMachine(GameServer=GameServer, name=name)
 
 
-def run_state_machine():
-    while True:
-        lock.acquire()
-        state_machine.choose_state()
-        state_machine.perform_current_state()
-        lock.release()
-        time.sleep(0.2)
+
+    lock = threading.Lock()
 
 
-message_thread = threading.Thread(target=recieve_messages)
-message_thread.start()
+    def recieve_messages():
+        while True:
+            message = GameServer.readMessage()
+            lock.acquire()
+            state_machine.update(message)
+            lock.release()
 
-state_machine_thread = threading.Thread(target=run_state_machine)
-state_machine_thread.start()
+
+    def run_state_machine():
+        while True:
+            lock.acquire()
+            state_machine.choose_state()
+            state_machine.perform_current_state()
+            lock.release()
+            time.sleep(0.2)
+
+    message_thread = threading.Thread(target=recieve_messages)
+    message_thread.start()
+
+    state_machine_thread = threading.Thread(target=run_state_machine)
+    state_machine_thread.start()
+
+
+
+TEAM_NAME = 'PYJIN'
+PLAYERS = ['Shrek', 'Fiona', 'Donkey', 'Puss']
+
+
+if __name__ == '__main__':
+    processes = [Process(target=run_bot, args=(f"{TEAM_NAME}:{player}",)) for player in PLAYERS]
+    for process in processes:
+        process.start()
+
+    for process in processes:
+        process.join()
+
