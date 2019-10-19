@@ -54,9 +54,18 @@ class AttackState(State):
         enemy = self.target if self.target else self.status.find_best_enemy_target()
         predicted_enemy_position = self.predict_enemy_position(enemy)
 
-        angle_allowed = (105 - distance) / 5
+        distance = calculate_distance(self.status.position, predicted_enemy_position)
+        angle_allowed = (105 - distance) / 10
 
         time_since_last = time() - self.lastFireTime
 
         return within_degrees(angle_allowed, heading, target_heading) and (time_since_last > 2)
 
+
+    def calculate_priority(self, is_current_state: bool) -> float:
+        enemy = self.status.find_best_enemy_target()
+        if enemy is not None and self.status.ammo > 0:
+            self.target = enemy
+            return 0.5 + self.base_priority  # Default as only 2 attacking priorities
+        self.target = None
+        return 0
