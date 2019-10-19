@@ -42,7 +42,7 @@ def run_bot(name):
     logging.info("Creating tank with name '{}'".format(name))
     GameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': name})
 
-    state_machine = StateMachine(GameServer=GameServer, name=name)
+    state_machine = StateMachine(GameServer=GameServer, name=name, role=Roles.RED_ATTACKER)
 
 
 
