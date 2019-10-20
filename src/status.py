@@ -190,7 +190,7 @@ class Status:
             return None
         i = healths.index(min(healths))
         if healths[i] == 1:
-            return recently_seen[i]
+            return recently_seen[i] if recently_seen[i].id != self.snitch_carrier_id else None
         return None
 
     def find_snitch(self) -> Collectable:

@@ -115,7 +115,7 @@ class StateMachine:
 
             def keep_blue_sniper():
                 return not self.status.check_red_goal_safe_again() and time() - enter_time < SNIPER_TIME
-            self.status.override_role(Roles.BLUE_KEEPER, keep_blue_sniper)
+            self.status.override_role(Roles.BLUE_SNIPER, keep_blue_sniper)
         
         blue_goal_unsafe = self.status.check_blue_goal_unsafe()
         if blue_goal_unsafe:
@@ -124,7 +124,7 @@ class StateMachine:
             def keep_red_sniper():
                 return not self.status.check_blue_goal_safe_again() and time() - enter_time < SNIPER_TIME 
 
-            self.status.override_role(Roles.RED_KEEPER, keep_red_sniper)
+            self.status.override_role(Roles.RED_SNIPER, keep_red_sniper)
         
             
 

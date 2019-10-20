@@ -73,7 +73,7 @@ def run_bot(teamname, name, role):
 
 
 TEAM_NAME = 'PYJIN'
-PLAYERS = ['Shrek', 'Fiona', 'Donkey', 'Puss']
+PLAYERS = ['Pidgey', 'Taillow', 'Starly', 'Pidove']
 ROLES = [Roles.BLUE_ATTACKER, Roles.BLUE_KEEPER, Roles.RED_ATTACKER, Roles.RED_KEEPER]
 
 ENEMY_NAME = 'NIN'
