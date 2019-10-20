@@ -13,7 +13,7 @@ class SnitchState(State):
         player_position = np.array(list(self.status.position))
         snitch_pos = np.array(list(snitch.current_pos()))
         if snitch.previous_pos() is None:
-            return snitch_pos
+            return tuple(snitch_pos.tolist())
         snitch_prev = np.array(list(snitch.previous_pos()))
 
         diff = snitch_pos - snitch_prev
@@ -25,7 +25,7 @@ class SnitchState(State):
         time = distance / TANK_SPEED
 
         diff = diff * time / (snitch_pos_time - snitch_prev_time)
-        return (snitch.current_pos() + diff).tolist()
+        return tuple((snitch_pos + diff).tolist())
 
     def calculate_priority(self, is_current_state: bool) -> None:
         if not self.status.snitch_available:

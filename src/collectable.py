@@ -20,6 +20,7 @@ class Collectable:
         self.last_seen = time()
         self.position = (payload.x, payload.y)
         self.positions = self.positions[-4:] + [(payload.x, payload.y)]
+        self.payload_times = self.payload_times[-4:] + [time()]
 
     def current_pos(self) -> Tuple[float, float]:
         return self.positions[-1]
