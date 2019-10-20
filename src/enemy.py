@@ -1,7 +1,7 @@
 from server import ObjectUpdate
 from time import time
 from typing import Tuple
-from utils import within_degrees, heading_from_to
+from utils import within_degrees, heading_from_to, calculate_distance
 
 Vector = Tuple[float, float]
 
@@ -13,6 +13,7 @@ class Enemy:
         self.type = payload.type
         self.last_seen = time()
         self.position = [(payload.x, payload.y)]
+        self.payload_times = [time()]
         self.heading = payload.heading
         self.turret_heading = payload.turret_heading
         self.health = payload.health
@@ -22,6 +23,7 @@ class Enemy:
         if payload.id == self.id:
             self.last_seen = time()
             self.position = self.position[-4:] + [(payload.x, payload.y)]
+            self.payload_times = self.payload_times[-4:] + [time()]
             self.heading = payload.heading
             self.turret_heading = payload.turret_heading
             self.health = payload.health
@@ -34,7 +36,13 @@ class Enemy:
         return self.position[-1]
 
     def previous_pos(self) -> Tuple[float, float]:
-        return self.position[-2]
+        return self.position[-2] if len(self.position) > 1 else None
+    
+    def current_pos_time(self) -> float:
+        return self.payload_times[-1]
+    
+    def previous_pos_time(self) -> float:
+        return self.payload_times[-2] if len(self.payload_times) > 1 else None
 
     def is_aiming_at(self, position: Vector) -> bool:
         """

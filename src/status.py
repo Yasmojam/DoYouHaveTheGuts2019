@@ -7,11 +7,12 @@ from utils import closest_point, calculate_distance
 
 
 class Status:
-    def __init__(self, teamname: str, name: str, role) -> None:
+    def __init__(self, teamname: str, name: str, role, on_minute_change) -> None:
         self.teamname = teamname
         self.name = name
         self.id = None
         self.role = role
+        self.overridden_role = None
         self.position = (0, 0)
         self.heading = 0
         self.turret_heading = 0
@@ -21,6 +22,10 @@ class Status:
         self.ammo = self.max_health
         self.points = 0
         self.banked_points = 0
+        self.banked_before_this_minute = 0
+        self.on_minute_change = on_minute_change
+        self.minute = 0
+        self.start_time = time()
         self.other_tanks = dict()
         self.collectables = dict()
         self.snitch_available = False
@@ -47,7 +52,7 @@ class Status:
             self.snitch_spawned()
         elif message.type == ServerMessageTypes.SNITCHPICKUP:
             if message.payload["Id"] == self.id:
-                self.points += 20
+                self.points += 5
                 self.snitch_carrier_id = None
             else:
                 self.snitch_carrier_id = message.payload["Id"]
@@ -112,6 +117,8 @@ class Status:
 
     def find_best_enemy_target(self) -> Enemy:
         def score(enemy):
+            if enemy is None:
+                return 1 # don't target
             dist_score = calculate_distance(self.position, enemy.current_pos()) / 100
             hp_score = enemy.health * 0.1
             return dist_score * hp_score
@@ -121,13 +128,17 @@ class Status:
             return snitch_carrier
 
         lowest = self.find_lowest_enemy()
+        lowest_friendly = self.find_lowest_friendly()
         nearest = self.find_nearest_enemy()
 
-        if not lowest:
-            return nearest
-        elif not nearest:
-            return lowest
-        return lowest if score(lowest) < score(nearest) else nearest
+        possible_targets = [lowest, lowest_friendly, nearest]
+        scores = list(map(score, possible_targets))
+        lowest_score = min(scores)
+
+        for i, target in enumerate(possible_targets):
+            if scores[i] == lowest_score:
+                return target
+        return lowest
 
     def find_snitch_carrier(self) -> Enemy:
         if self.snitch_carrier_id is None:
@@ -148,7 +159,7 @@ class Status:
         return recently_seen[i]
 
     def find_lowest_enemy(self) -> Enemy:
-        """ Find the nearest enemy tank """
+        """ Find the lowest enemy tank """
         recently_seen = self.recently_seen_enemies(5)
         if len(recently_seen) == 0:
             return None
@@ -158,6 +169,20 @@ class Status:
             return None
         i = healths.index(min(healths))
         return recently_seen[i]
+    
+    def find_lowest_friendly(self) -> Enemy:
+        """ Find the lowest friendly tank """
+        recently_seen = self.recently_seen_friendlies(5)
+        if len(recently_seen) == 0:
+            return None
+        healths = list(map(lambda t: t.health, recently_seen))
+        healths = list(filter(lambda h: h != 0, healths))
+        if len(healths) == 0:
+            return None
+        i = healths.index(min(healths))
+        if healths[i] == 1:
+            return recently_seen[i]
+        return None
 
     def find_snitch(self) -> Collectable:
         """ Find the snitch """
@@ -202,6 +227,21 @@ class Status:
             if collectable.time_since_last() < seconds and collectable.type == typ:
                 recently_seen.append(collectable)
         return recently_seen
+    
+    def current_minute(self) -> int:
+        return self.seconds_since_start() // 60
+
+    def seconds_since_start(self) -> float:
+        return time() - self.start_time
+    
+    def update_minute(self) -> None:
+        if self.current_minute() > self.minute:
+            self.on_minute_change()
+            self.banked_before_this_minute = self.banked_points
+            self.minute = self.current_minute()
+
+    def banked_this_minute(self) -> int:
+        return self.banked_points - self.banked_before_this_minute
 
     def __str__(self):
         return (
