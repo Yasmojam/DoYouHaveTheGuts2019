@@ -8,10 +8,13 @@ class GoToGoalState(State):
     def perform(self):
         goals = [(0, 100), (0, -100)]
 
-        if self.status.check_blue_goal_safe_again():
-            closestGoal = BLUE_GOAL
-        elif self.status.check_red_goal_safe_again():
-            closestGoal = RED_GOAL
+        if self.status.current_minute() < 4:
+            if self.status.check_red_goal_safe_again():
+                closestGoal = RED_GOAL
+            elif self.status.check_blue_goal_safe_again():
+                closestGoal = BLUE_GOAL
+            else:
+                closestGoal = closest_point(self.status.position, goals)
         else:
             closestGoal = closest_point(self.status.position, goals)
 
