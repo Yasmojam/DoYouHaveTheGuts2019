@@ -12,7 +12,7 @@ class Collectable:
         self.id = payload.id
         self.type = payload.type
         self.last_seen = time()
-        self.position = (payload.x, payload.y)
+        self.position = [(payload.x, payload.y)]
         self.payload_times = [time()]
 
     def update(self, payload: ObjectUpdate) -> None:
