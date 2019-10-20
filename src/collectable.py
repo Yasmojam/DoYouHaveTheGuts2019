@@ -12,18 +12,20 @@ class Collectable:
         self.id = payload.id
         self.type = payload.type
         self.last_seen = time()
-        self.position = [(payload.x, payload.y)]
+        self.position = (payload.x, payload.y)
+        self.positions = [(payload.x, payload.y)]
         self.payload_times = [time()]
 
     def update(self, payload: ObjectUpdate) -> None:
         self.last_seen = time()
         self.position = (payload.x, payload.y)
+        self.positions = self.positions[-4:] + [(payload.x, payload.y)]
 
     def current_pos(self) -> Tuple[float, float]:
-        return self.position[-1]
+        return self.positions[-1]
 
     def previous_pos(self) -> Tuple[float, float]:
-        return self.position[-2] if len(self.position) > 1 else None
+        return self.positions[-2] if len(self.positions) > 1 else None
     
     def current_pos_time(self) -> float:
         return self.payload_times[-1]
