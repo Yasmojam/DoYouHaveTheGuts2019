@@ -7,8 +7,8 @@ BLUE_GOAL_PATROL = [(20, 80), (-20, 80)]
 RED_GOAL_PATROL  = [(20, -80), (-20, -80)]
 
 # Patrol coords for snipers
-BLUE_SNIPER_PATROL = [(5,25), (5-25)]
-RED_SNIPER_PATROL = [(-5,25), (-5,-25)]
+BLUE_SNIPER_PATROL = [(25, 0), (-25, 0)]
+RED_SNIPER_PATROL = [(25, 0), (-25, 0)]
 
 class PatrolState(State):
     def __init__(self, turret_controls, body_controls, status, priority):

@@ -73,12 +73,12 @@ def run_bot(teamname, name, role):
 
 
 TEAM_NAME = 'PYJIN'
-PLAYERS = ['Shrek', 'Fiona', 'Donkey', 'Puss']
-ROLES = [Roles.BLUE_ATTACKER, Roles.BLUE_KEEPER, Roles.RED_ATTACKER, Roles.RED_KEEPER]
+PLAYERS = ['Shrek']#, 'Fiona', 'Donkey', 'Puss']
+ROLES = [Roles.BLUE_SNIPER]# , Roles.BLUE_KEEPER, Roles.RED_ATTACKER, Roles.RED_KEEPER]
 
 ENEMY_NAME = 'NIN'
-ENEMY_PLAYERS = ['Mario', 'Luigi', 'Yoshi', 'Peach']
-ENEMY_ROLES = [Roles.BLUE_ATTACKER, Roles.BLUE_KEEPER, Roles.RED_ATTACKER, Roles.RED_KEEPER]
+ENEMY_PLAYERS = ['Mario']#, 'Luigi', 'Yoshi', 'Peach']
+ENEMY_ROLES = [Roles.RED_KEEPER]#, Roles.BLUE_KEEPER, Roles.RED_ATTACKER, Roles.RED_KEEPER]
 
 if __name__ == '__main__':
     processes = [Process(target=run_bot, args=(f"{TEAM_NAME}",f"{TEAM_NAME}:{player}",role,)) for player, role in zip(PLAYERS,ROLES)]
