@@ -3,6 +3,7 @@ from server import Message
 from bodymovement import BodyMovement
 from turretmovement import TurretMovement
 import logging
+from time import time
 from states import (
     RoamingState,
     GoToGoalState,
@@ -34,6 +35,8 @@ ROLE_ROTATION = {
     Roles.BLUE_KEEPER: Roles.RED_KEEPER,
     Roles.RED_KEEPER: Roles.BLUE_KEEPER,
 }
+
+SNIPER_TIME = 30
     
 
 def index_to_priority(index,length_list):
@@ -71,6 +74,7 @@ class StateMachine:
 
     def choose_state(self) -> None:
         self.status.update_minute()
+        self.check_role_override()
         body_priorities = [
             self.body_states[i].calculate_priority(
                 is_current_state=(i == self.current_body_state_i)
@@ -100,6 +104,28 @@ class StateMachine:
     def update_role(self) -> None:
         if self.status.role in ROLE_ROTATION and self.status.banked_this_minute() == 0:
             self.status.role = ROLE_ROTATION[self.status.role]
+    
+    def check_role_override(self) -> None:
+        if self.status.finished_override():
+            self.status.remove_override()
+
+        red_goal_unsafe = self.status.check_red_goal_unsafe()
+        if red_goal_unsafe:
+            enter_time = time()
+
+            def keep_blue_sniper():
+                return not self.status.check_red_goal_safe_again() and time() - enter_time < SNIPER_TIME
+            self.status.override_role(Roles.BLUE_SNIPER, keep_blue_sniper)
+        
+        blue_goal_unsafe = self.status.check_blue_goal_unsafe()
+        if blue_goal_unsafe:
+            enter_time = time()
+
+            def keep_red_sniper():
+                return not self.status.check_blue_goal_safe_again() and time() - enter_time < SNIPER_TIME 
+
+            self.status.override_role(Roles.RED_SNIPER, keep_red_sniper)
+        
+            
 
         
-
