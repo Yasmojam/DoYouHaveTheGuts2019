@@ -7,11 +7,12 @@ from utils import closest_point, calculate_distance
 
 
 class Status:
-    def __init__(self, teamname: str, name: str, role) -> None:
+    def __init__(self, teamname: str, name: str, role, on_minute_change) -> None:
         self.teamname = teamname
         self.name = name
         self.id = None
         self.role = role
+        self.overridden_role = None
         self.position = (0, 0)
         self.heading = 0
         self.turret_heading = 0
@@ -21,6 +22,10 @@ class Status:
         self.ammo = self.max_health
         self.points = 0
         self.banked_points = 0
+        self.banked_before_this_minute = 0
+        self.on_minute_change = on_minute_change
+        self.minute = 0
+        self.start_time = time()
         self.other_tanks = dict()
         self.collectables = dict()
         self.snitch_available = False
@@ -47,7 +52,7 @@ class Status:
             self.snitch_spawned()
         elif message.type == ServerMessageTypes.SNITCHPICKUP:
             if message.payload["Id"] == self.id:
-                self.points += 20
+                self.points += 5
                 self.snitch_carrier_id = None
             else:
                 self.snitch_carrier_id = message.payload["Id"]
@@ -202,6 +207,21 @@ class Status:
             if collectable.time_since_last() < seconds and collectable.type == typ:
                 recently_seen.append(collectable)
         return recently_seen
+    
+    def current_minute(self) -> int:
+        return self.seconds_since_start() // 60
+
+    def seconds_since_start(self) -> float:
+        return time() - self.start_time
+    
+    def update_minute(self) -> None:
+        if self.current_minute() > self.minute:
+            self.on_minute_change()
+            self.banked_before_this_minute = self.banked_points
+            self.minute = self.current_minute()
+
+    def banked_this_minute(self) -> int:
+        return self.banked_points - self.banked_before_this_minute
 
     def __str__(self):
         return (

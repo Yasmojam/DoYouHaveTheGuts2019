@@ -15,6 +15,7 @@ from states import (
     PatrolState,
     StopState
 )
+from roles import Roles
 
 AVAILABLE_TURRET_STATES = [ScanState, AttackState]
 AVAILABLE_BODY_STATES = [
@@ -28,6 +29,12 @@ AVAILABLE_BODY_STATES = [
     RoamingState,
     PatrolState
 ]
+
+ROLE_ROTATION = {
+    Roles.BLUE_KEEPER: Roles.RED_KEEPER,
+    Roles.RED_KEEPER: Roles.BLUE_KEEPER,
+}
+    
 
 def index_to_priority(index,length_list):
     return 0.5 - index/((length_list - 1)*2)
@@ -43,7 +50,7 @@ turret_base_priorities = list(
 
 class StateMachine:
     def __init__(self, GameServer, teamname, name, role) -> None:
-        self.status = Status(teamname=teamname, name=name, role=role)
+        self.status = Status(teamname=teamname, name=name, role=role, on_minute_change=lambda: self.update_role())
         self.GameServer = GameServer
         self.turret_controls = TurretMovement(GameServer=GameServer, status=self.status)
         self.body_controls = BodyMovement(GameServer=GameServer, status=self.status)
@@ -63,6 +70,7 @@ class StateMachine:
         logging.info(f"Recieved message {message.type}: {message.payload}")
 
     def choose_state(self) -> None:
+        self.status.update_minute()
         body_priorities = [
             self.body_states[i].calculate_priority(
                 is_current_state=(i == self.current_body_state_i)
@@ -88,3 +96,10 @@ class StateMachine:
         logging.info(f"Base priorities: Body: {body_base_priorities}\nTurret:{turret_base_priorities}")
         self.current_body_state.perform()
         self.current_turret_state.perform()
+    
+    def update_role(self) -> None:
+        if self.status.role in ROLE_ROTATION and self.status.banked_this_minute() == 0:
+            self.status.role = ROLE_ROTATION[self.status.role]
+
+        
+
