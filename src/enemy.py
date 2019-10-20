@@ -1,7 +1,7 @@
 from server import ObjectUpdate
 from time import time
 from typing import Tuple
-from utils import within_degrees, heading_from_to
+from utils import within_degrees, heading_from_to, calculate_distance
 
 Vector = Tuple[float, float]
 
