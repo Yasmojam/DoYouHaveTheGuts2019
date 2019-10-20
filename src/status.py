@@ -3,8 +3,12 @@ from enemy import Enemy
 from typing import List
 from collectable import COLLECTABLE_TYPES, Collectable
 from time import time
-from utils import closest_point, calculate_distance
+from utils import closest_point, calculate_distance, count_within_radius, count_not_within_radius
 
+
+GOAL_UNSAFE_TIME = 20
+BLUE_GOAL = (0, 100)
+RED_GOAL = (0, -100)
 
 class Status:
     def __init__(self, teamname: str, name: str, role, on_minute_change) -> None:
@@ -13,6 +17,7 @@ class Status:
         self.id = None
         self.role = role
         self.overridden_role = None
+        self.keep_override = None
         self.position = (0, 0)
         self.heading = 0
         self.turret_heading = 0
@@ -30,6 +35,10 @@ class Status:
         self.collectables = dict()
         self.snitch_available = False
         self.snitch_carrier_id = None
+        self.blue_goal_camped_recently = False
+        self.red_goal_camped_recently = False
+        self.blue_goal_camped_since = 0
+        self.red_goal_camped_since = 0
 
     def update(self, message: Message) -> None:
         """ Process an incoming server message """
@@ -242,6 +251,62 @@ class Status:
 
     def banked_this_minute(self) -> int:
         return self.banked_points - self.banked_before_this_minute
+
+    def check_blue_goal_unsafe(self) -> bool:
+        if self.area_is_unsafe(BLUE_GOAL):
+            self.blue_goal_camped_recently = True
+            self.blue_goal_camped_since = time()
+        elif time() - self.blue_goal_camped_recently > GOAL_UNSAFE_TIME:
+            self.blue_goal_camped_recently = False
+        return self.blue_goal_camped_recently
+
+    def check_red_goal_unsafe(self) -> bool:
+        if self.area_is_unsafe(RED_GOAL):
+            self.red_goal_camped_recently = True
+            self.red_goal_camped_since = time()
+        elif time() - self.red_goal_camped_since > GOAL_UNSAFE_TIME:
+            self.red_goal_camped_recently = False
+        return self.red_goal_camped_recently
+
+    def check_blue_goal_safe_again(self) -> bool:
+        safe_again = self.area_is_safe(BLUE_GOAL)
+        if safe_again:
+            self.blue_goal_camped_recently = False
+        return safe_again
+
+    def check_red_goal_safe_again(self) -> bool:
+        safe_again = self.area_is_safe(RED_GOAL)
+        if safe_again:
+            self.red_goal_camped_recently = False
+        return safe_again
+
+    def area_is_unsafe(self, point) -> bool:
+        enemies = self.recently_seen_enemies(5)
+        positions = list(map(lambda e: e.current_pos(), enemies))
+        number_in_area = count_within_radius(positions, point, 40)
+        return number_in_area >= 3
+    
+    def area_is_safe(self, point) -> bool:
+        enemies = self.recently_seen_enemies(5)
+        positions = list(map(lambda e: e.current_pos(), enemies))
+        number_out_area = count_not_within_radius(positions, point, 40)
+        return number_out_area >= 2
+    
+    def override_role(self, role, keep_override_condition) -> None:
+        if not self.overridden_role:
+            self.overridden_role = self.role
+        self.role = role
+        self.keep_override = keep_override_condition
+
+    def finished_override(self) -> bool:
+        if not self.keep_override:
+            return False
+        return self.keep_override()
+
+    def remove_override(self):
+        if self.overridden_role:
+            self.role = self.overridden_role
+        self.overridden_role = None
 
     def __str__(self):
         return (

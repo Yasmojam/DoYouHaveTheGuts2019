@@ -44,6 +44,19 @@ def closest_point(current_point, points) -> Vector:
             distance_to_closest = distance
     return closest
 
+def count_within_radius(points, centre, radius) -> int:
+    count = 0
+    for point in points:
+        if calculate_distance(centre, point) <= radius:
+            count += 1
+    return count
+
+def count_not_within_radius(points, centre, radius) -> int:
+    count = 0
+    for point in points:
+        if calculate_distance(centre, point) > radius:
+            count += 1
+    return count
 
 def within_degrees(error, angle, goal):
     anglediff = (angle - goal + 180 + 360) % 360 - 180
