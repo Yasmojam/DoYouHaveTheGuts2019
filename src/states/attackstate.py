@@ -16,18 +16,24 @@ class AttackState(State):
 
     def predict_enemy_position(self, enemy):
         player_position = np.array(list(self.status.position))
-        # distance = np.sqrt( (player_position[0] - enemy.current_pos()[0])**2 + (player_position[1] - enemy.current_pos()[1])**2 )
-        distance = calculate_distance(player_position, enemy.current_pos())
+        enemy_pos = np.array(list(enemy.current_pos()))
+        if enemy.previous_pos() is None:
+            return enemy_pos
+        enemy_prev = np.array(list(enemy.previous_pos()))
 
+        diff = enemy_pos - enemy_prev
+
+        enemy_pos_time = enemy.current_pos_time()
+        enemy_prev_time = enemy.previous_pos_time()
+
+        distance = calculate_distance(player_position, enemy_pos)
         time = distance / BULLET_SPEED
-        
-        delta_distance = np.array([10 * np.cos(enemy.heading) * time, -10 * np.sin(enemy.heading) * time])
 
-        return (enemy.current_pos() + delta_distance).tolist()
+        diff = diff * time / (enemy_pos_time - enemy_prev_time)
+        return (enemy.current_pos() + diff).tolist()
 
 
     def perform(self):
-
         (enemy, next_heading) = self.getEnemyAndHeading()
         # self.turret_controls.aim_left()
         self.turret_controls.aim_at_heading(next_heading)
@@ -41,15 +47,13 @@ class AttackState(State):
             else:
                 self.fireNext = 3
 
-
-
     def getEnemyAndHeading(self) -> (Enemy, float):
-        enemy = self.target if self.target else self.status.find_best_enemy_target()
+        if not self.target:
+            self.target = self.status.find_best_enemy_target()
+        enemy = self.target
         position = self.status.position
 
-        # predicted_enemy_position = self.predict_enemy_position(enemy)
-
-        next_heading = heading_from_to(position, enemy.current_pos())
+        next_heading = heading_from_to(position, self.predict_enemy_position(enemy))
         return (enemy, next_heading)
 
     def isReadyToFire(self, target, target_heading) -> bool:
