@@ -35,7 +35,6 @@ class AttackState(State):
 
     def perform(self):
         (enemy, next_heading) = self.getEnemyAndHeading()
-        # self.turret_controls.aim_left()
         self.turret_controls.aim_at_heading(next_heading)
 
         if self.isReadyToFire(enemy, next_heading):
